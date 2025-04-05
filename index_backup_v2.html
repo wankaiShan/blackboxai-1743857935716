@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shower Water Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .shower-light {
+            transition: background-color 0.5s ease;
+            box-shadow: 0 0 20px currentColor;
+        }
+        .alert-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <div class="flex justify-end mb-2">
+                <select id="languageSelect" class="text-sm border rounded px-2 py-1">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                </select>
+            </div>
+            <h1 class="text-4xl font-bold text-teal-600" data-i18n="title">Shower Water Monitor</h1>
+            <p class="text-gray-600 mt-2">Track your water usage in real-time</p>
+            <div id="cityDisplay" class="mt-2 text-sm text-gray-500">
+                <i class="fas fa-map-marker-alt mr-1"></i>
+                <span>Loading city...</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Shower Light Indicator -->
+            <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-4">Shower Status</h2>
+                <div class="shower-light w-32 h-32 rounded-full bg-green-500 mb-4"></div>
+                <div class="flex space-x-4">
+                    <button id="startBtn" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded">
+                        <i class="fas fa-play mr-2"></i>Start
+                    </button>
+                    <button id="stopBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                        <i class="fas fa-stop mr-2"></i>Stop
+                    </button>
+                </div>
+            </div>
+
+            <!-- Usage Stats -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Current Session</h2>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-gray-600">Time</p>
+                        <p id="timeDisplay" class="text-3xl font-bold">00:00</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Water Used</p>
+                        <p id="waterDisplay" class="text-3xl font-bold">0 L</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Estimated Cost</p>
+                        <p id="costDisplay" class="text-3xl font-bold">€0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Limit -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Daily Limit</h2>
+                <div class="h-4 bg-gray-200 rounded-full mb-2">
+                    <div id="limitBar" class="h-4 bg-teal-600 rounded-full" style="width: 0%"></div>
+                </div>
+                <p id="limitText" class="text-gray-600">0% of daily limit used</p>
+                <div class="mt-2">
+                    <button id="resetDaily" class="text-sm text-teal-600 hover:text-teal-800 flex items-center">
+                        <i class="fas fa-redo mr-1"></i> Reset Daily Counter
+                    </button>
+                </div>
+                <div id="alertBox" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span>You're exceeding your daily limit!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Graph -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Today's Usage</h2>
+            <canvas id="dailyChart" height="200"></canvas>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mt-8 flex justify-center space-x-4">
+            <a href="settings.html" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">
+                <i class="fas fa-cog mr-2"></i>Settings
+            </a>
+            <a href="monthly-summary.html" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-medium">
+                <i class="fas fa-chart-line mr-2"></i>View Detailed Monthly Report
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Display current city info
+        document.addEventListener('DOMContentLoaded', () => {
+            const settings = JSON.parse(localStorage.getItem('settings')) || {
+                cityConfigKey: 'la_fresh'
+            };
+            const cityDisplay = document.getElementById('cityDisplay');
+            const cityInfo = {
+                la_fresh: "Los Angeles (Freshwater)",
+                cape_town_recycled: "Cape Town (Recycled)",
+                dubai_desalinated: "Dubai (Desalinated)",
+                singapore_newater: "Singapore (NEWater)",
+                barcelona: "Barcelona (Tap Water)",
+                mataro: "Mataró (Recycled)"
+            };
+            cityDisplay.innerHTML = `
+                <i class="fas fa-map-marker-alt mr-1"></i>
+                <span>${cityInfo[settings.cityConfigKey] || cityInfo.la_fresh}</span>
+            `;
+        });
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
