@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Summary - Goteco</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-teal-600">Monthly Summary</h1>
+            <p class="text-gray-600 mt-2">Your shower water usage overview</p>
+        </header>
+
+        <!-- Calendar Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Usage Calendar</h2>
+            <div id="calendar" class="min-h-[400px]"></div>
+        </div>
+
+        <!-- Monthly Chart -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Monthly Usage</h2>
+            <canvas id="monthlyChart" height="200"></canvas>
+        </div>
+
+        <!-- AI Insights Section -->
+        <div class="bg-gradient-to-r from-teal-400 to-cyan-500 text-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">AI Analysis</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Usage Patterns</h3>
+                    <canvas id="patternChart" height="200"></canvas>
+                    <p class="text-sm mt-2">Your peak usage days: <span id="peakDays">Monday, Friday</span></p>
+                </div>
+                <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Savings Potential</h3>
+                    <div class="h-4 bg-gray-200 rounded-full mb-2">
+                        <div id="savingsBar" class="h-4 bg-yellow-500 rounded-full" style="width: 35%"></div>
+                    </div>
+                    <p class="text-sm mb-4">You could save up to <span id="savingsAmount">$12.50</span> this month</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle mr-2 text-green-300"></i>
+                            <span>Shorter showers (2 min less)</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle mr-2 text-green-300"></i>
+                            <span>Lower flow rate</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Statistics</h2>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-gray-600">Average Daily Usage</p>
+                        <p id="avgDailyUsage" class="text-3xl font-bold">0 L</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Total Monthly Usage</p>
+                        <p id="totalMonthlyUsage" class="text-3xl font-bold">0 L</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Estimated Savings</p>
+                        <p id="estimatedSavings" class="text-3xl font-bold">$0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Usage Comparison</h2>
+                <canvas id="comparisonChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="index.html" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg inline-block">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize calendar
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                events: generateCalendarEvents(),
+                eventDidMount: function(info) {
+                    const usage = info.event.extendedProps.usage;
+                    const avgUsage = monthlyData.currentMonth.usage.reduce((a, b) => a + b, 0) / monthlyData.currentMonth.usage.length;
+                    const comparison = usage > avgUsage ? 'Above average' : 'Below average';
+                    const savings = Math.abs(usage - avgUsage) * settings.waterCost;
+                    
+                    tippy(info.el, {
+                        content: `
+                            <div class="p-2">
+                                <div class="font-bold">${info.event.start.toDateString()}</div>
+                                <div>Usage: ${usage.toFixed(1)}L</div>
+                                <div>${comparison}</div>
+                                <div>Potential savings: $${savings.toFixed(2)}</div>
+                            </div>
+                        `,
+                        allowHTML: true,
+                        placement: 'top',
+                    });
+                },
+                eventClick: function(info) {
+                    const usage = info.event.extendedProps.usage;
+                    const date = info.event.start.toDateString();
+                    const avgUsage = monthlyData.currentMonth.usage.reduce((a, b) => a + b, 0) / monthlyData.currentMonth.usage.length;
+                    const comparison = usage > avgUsage ? 'Above average' : 'Below average';
+                    const savings = Math.abs(usage - avgUsage) * settings.waterCost;
+                    
+                    const detailsDiv = document.createElement('div');
+                    detailsDiv.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-xl z-50';
+                    detailsDiv.innerHTML = `
+                        <h3 class="text-xl font-bold mb-4">Usage Details</h3>
+                        <p class="mb-2">Date: ${date}</p>
+                        <p class="mb-2">Water Used: ${usage.toFixed(1)}L</p>
+                        <p class="mb-2">Status: ${comparison}</p>
+                        <p class="mb-4">Potential Savings: $${savings.toFixed(2)}</p>
+                        <button class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700" onclick="this.parentElement.remove()">Close</button>
+                    `;
+                    document.body.appendChild(detailsDiv);
+                }
+            });
+            calendar.render();
+        });
+
+        function generateCalendarEvents() {
+            const events = [];
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+
+            monthlyData.currentMonth.days.forEach((day, index) => {
+                const usage = monthlyData.currentMonth.usage[index];
+                if (usage > 0) {
+                    events.push({
+                        title: `${usage.toFixed(1)}L`,
+                        start: new Date(currentYear, currentMonth, day),
+                        backgroundColor: getColorForUsage(usage),
+                        extendedProps: {
+                            usage: usage
+                        }
+                    });
+                }
+            });
+
+            return events;
+        }
+
+        function getColorForUsage(usage) {
+            if (usage < 30) return '#4CAF50';  // Green for good
+            if (usage < 50) return '#FFC107';  // Yellow for moderate
+            return '#F44336';  // Red for high usage
+        }
+
+        // Initialize charts
+        const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+        const patternCtx = document.getElementById('patternChart').getContext('2d');
+
+        // Get actual data from localStorage
+        function getMonthlyData() {
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            const monthlyData = {
+                currentMonth: {
+                    days: Array(daysInMonth).fill().map((_, i) => i + 1),
+                    usage: Array(daysInMonth).fill(0)
+                },
+                previousMonth: {
+                    days: Array(daysInMonth).fill().map((_, i) => i + 1),
+                    usage: Array(daysInMonth).fill(0)
+                }
+            };
+
+            // Fill in actual usage data from localStorage
+            for (let i = 0; i < daysInMonth; i++) {
+                const date = new Date(currentYear, currentMonth, i + 1).toDateString();
+                const usageData = JSON.parse(localStorage.getItem(`usage_${date}`));
+                if (usageData) {
+                    monthlyData.currentMonth.usage[i] = usageData.totalWater || 0;
+                }
+
+                const prevDate = new Date(currentYear, currentMonth - 1, i + 1).toDateString();
+                const prevUsageData = JSON.parse(localStorage.getItem(`usage_${prevDate}`));
+                if (prevUsageData) {
+                    monthlyData.previousMonth.usage[i] = prevUsageData.totalWater || 0;
+                }
+            }
+
+            return monthlyData;
+        }
+
+        const monthlyData = getMonthlyData();
+
+        // Calculate AI insights
+        const currentTotal = monthlyData.currentMonth.usage.reduce((a, b) => a + b, 0);
+        const previousTotal = monthlyData.previousMonth.usage.reduce((a, b) => a + b, 0);
+        const avgDaily = (currentTotal / 30).toFixed(1);
+        
+        // Enhanced savings calculation with AI
+        const settings = JSON.parse(localStorage.getItem('settings')) || {};
+        const waterCost = settings.waterCost || 0.003;
+        const savingsPotential = calculateSavingsPotential(monthlyData);
+        const savings = (previousTotal - currentTotal) * waterCost;
+        
+        // Update savings display
+        document.getElementById('savingsAmount').textContent = `$${savingsPotential.toFixed(2)}`;
+        document.getElementById('savingsBar').style.width = `${Math.min(100, savingsPotential/20*100)}%`;
+
+        // Update statistics display with AI insights
+        document.getElementById('avgDailyUsage').textContent = `${avgDaily} L`;
+        document.getElementById('totalMonthlyUsage').textContent = `${currentTotal} L`;
+        document.getElementById('estimatedSavings').textContent = `$${savings.toFixed(2)}`;
+        document.getElementById('peakDays').textContent = getPeakUsageDays(monthlyData);
+
+        // Monthly Usage Chart
+        new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: monthlyData.currentMonth.days,
+                datasets: [{
+                    label: 'Daily Water Usage (L)',
+                    data: monthlyData.currentMonth.usage,
+                    backgroundColor: '#009688',
+                    borderColor: '#00796b',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Pattern Analysis Chart
+        new Chart(patternCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Morning', 'Afternoon', 'Evening', 'Night'],
+                datasets: [{
+                    label: 'Your Usage Pattern',
+                    data: [65, 15, 20, 0],
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderColor: 'rgba(255, 255, 255, 0.8)',
+                    pointBackgroundColor: 'rgba(255, 255, 255, 1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        angleLines: {
+                            color: 'rgba(255, 255, 255, 0.3)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.3)'
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                }
+            }
+        });
+
+        // Comparison Chart
+        const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+        new Chart(comparisonCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Current Month', 'Previous Month'],
+                datasets: [{
+                    data: [currentTotal, previousTotal],
+                    backgroundColor: ['#009688', '#b2dfdb'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // AI Helper Functions
+        function calculateSavingsPotential(data) {
+            // Simple AI algorithm to estimate savings potential
+            const avgUsage = data.currentMonth.usage.reduce((a, b) => a + b, 0) / 30;
+            const minUsage = Math.min(...data.currentMonth.usage);
+            return (avgUsage - minUsage) * 30 * waterCost * 0.7; // 70% of potential
+        }
+
+        function getPeakUsageDays(data) {
+            // Analyze which days have highest usage
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayUsage = Array(7).fill(0);
+            
+            data.currentMonth.usage.forEach((amount, index) => {
+                const dayIndex = index % 7;
+                dayUsage[dayIndex] += amount;
+            });
+            
+            const maxUsage = Math.max(...dayUsage);
+            return dayUsage
+                .map((amount, i) => ({day: days[i], amount}))
+                .filter(item => item.amount > maxUsage * 0.8)
+                .map(item => item.day)
+                .join(', ');
+        }
+    </script>
+</body>
+</html>
