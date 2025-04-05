@@ -1,0 +1,63 @@
+/* Custom styles to complement Tailwind */
+
+/* Base styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+/* Shower light animation */
+.shower-light {
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px currentColor;
+}
+
+.shower-light {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 20px currentColor;
+}
+
+/* Alert animations */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Chart container styling */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* Button transitions */
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Dark mode support */
+.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.dark-mode .bg-white {
+    background-color: #1e1e1e !important;
+    color: #ffffff;
+}
+
+.dark-mode .text-gray-600 {
+    color: #a0a0a0 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
