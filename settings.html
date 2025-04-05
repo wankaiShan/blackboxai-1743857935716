@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Shower Water Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-teal-600">Settings</h1>
+            <p class="text-gray-600 mt-2">Configure your shower monitoring preferences</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+            <form id="settingsForm">
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-4 border-b pb-2">Water Usage Limits</h2>
+                    <div class="mb-4">
+                        <label for="waterLimit" class="block text-gray-700 mb-2">
+                            Daily Water Limit (liters): 
+                            <span id="waterLimitValue" class="font-bold">50</span>
+                        </label>
+                        <input type="range" id="waterLimit" name="waterLimit" min="10" max="200" value="50" 
+                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div class="mb-4">
+                        <label for="timeLimit" class="block text-gray-700 mb-2">
+                            Daily Time Limit (minutes): 
+                            <span id="timeLimitValue" class="font-bold">10</span>
+                        </label>
+                        <input type="range" id="timeLimit" name="timeLimit" min="2" max="30" value="10" 
+                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div class="mb-4">
+                                <label for="waterCost" class="block text-gray-700 mb-2">
+                                    Water Cost (per liter): €
+                                    <input type="number" id="waterCost" name="waterCost" step="0.001" min="0" max="1" value="0.0025"
+                                           class="ml-2 px-2 py-1 border rounded w-20">
+                                </label>
+                                <label for="waterMedian" class="block text-gray-700 mb-2">
+                                    Local Median Usage (L): 
+                                    <input type="number" id="waterMedian" name="waterMedian" step="1" min="5" max="100" value="50"
+                                           class="ml-2 px-2 py-1 border rounded w-20">
+                                </label>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-4 border-b pb-2">Alert Preferences</h2>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="alertSound" name="alertSound" class="mr-2" checked>
+                        <label for="alertSound" class="text-gray-700">Enable alert sound</label>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-4 border-b pb-2">AI Configuration</h2>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="enableAI" name="enableAI" class="mr-2" checked>
+                        <label for="enableAI" class="text-gray-700">Enable AI features</label>
+                    </div>
+                    <div class="mb-4">
+                        <label for="aiSensitivity" class="block text-gray-700 mb-2">
+                            Anomaly Detection Sensitivity:
+                        </label>
+                        <select id="aiSensitivity" name="aiSensitivity" class="border rounded px-2 py-1 w-full">
+                            <option value="conservative">Conservative (fewer alerts)</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="aggressive">Aggressive (more alerts)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-4 border-b pb-2">Appearance</h2>
+                    <div class="flex space-x-4">
+                        <div>
+                            <input type="radio" id="themeLight" name="theme" value="light" class="mr-2" checked>
+                            <label for="themeLight" class="text-gray-700">Light Mode</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="themeDark" name="theme" value="dark" class="mr-2">
+                            <label for="themeDark" class="text-gray-700">Dark Mode</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-4 border-b pb-2">City Configuration</h2>
+                    <div class="mb-4">
+                        <label for="citySelector" class="block text-gray-700 mb-2">
+                            Select Your City:
+                        </label>
+                        <select id="citySelector" name="citySelector" class="border rounded px-2 py-1 w-full">
+                            <option value="mataro">Mataró (Recycled)</option>
+                        </select>
+                        <div id="customThresholds" class="hidden mt-4">
+                            <div class="mb-4">
+                                <label for="customLow" class="block text-gray-700 mb-2">
+                                    Low Usage Threshold (0-1):
+                                    <input type="number" id="customLow" step="0.01" min="0" max="1" value="0.6"
+                                           class="ml-2 px-2 py-1 border rounded w-20">
+                                </label>
+                            </div>
+                            <div class="mb-4">
+                                <label for="customMedium" class="block text-gray-700 mb-2">
+                                    Medium Usage Threshold (0-1):
+                                    <input type="number" id="customMedium" step="0.01" min="0" max="1" value="0.85"
+                                           class="ml-2 px-2 py-1 border rounded w-20">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        City selection affects water usage thresholds and colors
+                    </p>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="window.location.href='index.html'" 
+                            class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded">
+                        Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Load current settings
+        const settings = JSON.parse(localStorage.getItem('settings')) || {
+            dailyWaterLimit: 50,
+            dailyTimeLimit: 10,
+            waterCost: 0.003,
+            alertSound: true,
+            theme: 'light',
+            cityConfigKey: 'mataro'
+        };
+
+        // Set form values from settings
+        document.getElementById('waterLimit').value = settings.dailyWaterLimit;
+        document.getElementById('waterLimitValue').textContent = settings.dailyWaterLimit;
+        document.getElementById('timeLimit').value = settings.dailyTimeLimit;
+        document.getElementById('timeLimitValue').textContent = settings.dailyTimeLimit;
+        document.getElementById('waterCost').value = settings.waterCost;
+        document.getElementById('alertSound').checked = settings.alertSound;
+        document.querySelector(`input[name="theme"][value="${settings.theme}"]`).checked = true;
+
+        // Update slider value displays
+        document.getElementById('waterLimit').addEventListener('input', (e) => {
+            document.getElementById('waterLimitValue').textContent = e.target.value;
+        });
+
+        document.getElementById('timeLimit').addEventListener('input', (e) => {
+            document.getElementById('timeLimitValue').textContent = e.target.value;
+        });
+
+        // Set AI settings from storage
+        document.getElementById('enableAI').checked = settings.aiEnabled;
+        document.getElementById('aiSensitivity').value = settings.aiSensitivity;
+
+        // Toggle custom thresholds visibility
+        document.getElementById('citySelector').addEventListener('change', (e) => {
+            document.getElementById('customThresholds').classList.toggle(
+                'hidden', e.target.value !== 'custom'
+            );
+        });
+
+        // Save settings
+        document.getElementById('settingsForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const newSettings = {
+                dailyWaterLimit: parseInt(document.getElementById('waterLimit').value),
+                dailyTimeLimit: parseInt(document.getElementById('timeLimit').value),
+                waterCost: parseFloat(document.getElementById('waterCost').value),
+                alertSound: document.getElementById('alertSound').checked,
+                theme: document.querySelector('input[name="theme"]:checked').value,
+                aiEnabled: document.getElementById('enableAI').checked,
+                aiSensitivity: document.getElementById('aiSensitivity').value,
+                cityConfigKey: document.getElementById('citySelector').value
+            };
+
+            // Handle custom thresholds
+            if (newSettings.cityConfigKey === 'custom') {
+                newSettings.customThresholds = {
+                    low: parseFloat(document.getElementById('customLow').value),
+                    medium: parseFloat(document.getElementById('customMedium').value)
+                };
+            }
+
+            
+            localStorage.setItem('settings', JSON.stringify(newSettings));
+            alert('Settings saved successfully!');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
