@@ -1,0 +1,14 @@
+/* Reset Button Styling */
+#resetDaily {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+#resetDaily:hover {
+    transform: scale(1.05);
+    color: #0d9488; /* teal-700 */
+}
+
+#resetDaily:active {
+    transform: scale(0.98);
+}
