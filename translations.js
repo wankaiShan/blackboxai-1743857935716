@@ -1,0 +1,40 @@
+const translations = {
+    en: {
+        title: "Goteco",
+        subtitle: "Track your water usage in real-time",
+        time: "Time",
+        waterUsed: "Water Used",
+        estimatedCost: "Estimated Cost",
+        dailyLimit: "Daily Limit",
+        resetDaily: "Reset Daily Counter",
+        startBtn: "Start",
+        stopBtn: "Stop",
+        showerStatus: "Shower Status",
+        currentSession: "Current Session",
+        resetConfirm: "Reset today's water usage tracking?",
+        aiInsights: "AI Insights",
+        predictedUsage: "Predicted Usage Today",
+        calculating: "Calculating...",
+        anomalyDetected: "Unusual usage pattern detected!",
+        todaysUsage: "Today's Usage"
+    },
+    es: {
+        title: "Goteco",
+        subtitle: "Controla tu uso de agua en tiempo real",
+        time: "Tiempo",
+        waterUsed: "Agua Usada",
+        estimatedCost: "Costo Estimado",
+        dailyLimit: "Límite Diario",
+        resetDaily: "Reiniciar Contador",
+        startBtn: "Iniciar",
+        stopBtn: "Detener",
+        showerStatus: "Estado de la Ducha",
+        currentSession: "Sesión Actual",
+        resetConfirm: "¿Reiniciar el seguimiento de agua de hoy?",
+        aiInsights: "IA Insights",
+        predictedUsage: "Uso Predicho Hoy",
+        calculating: "Calculando...",
+        anomalyDetected: "¡Patrón de uso inusual detectado!",
+        todaysUsage: "Uso de Hoy"
+    }
+};
