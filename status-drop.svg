@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(14, 0)">
+    <!-- Main drop shape -->
+    <path class="drop-main" d="M50 5 C50 5, 90 60, 50 95 C10 60, 50 5, 50 5" fill="currentColor"/>
+    <!-- Inner drop shape -->
+    <path class="drop-inner" d="M45 10 C45 10, 75 50, 45 77 C15 50, 45 10, 45 10" fill="white" opacity="0.3"/>
+    <!-- Leaf shape -->
+    <path class="drop-leaf" d="M35 35 C45 25, 60 40, 50 55 C40 45, 35 35, 35 35" fill="#90EE90"/>
+  </g>
+</svg>
